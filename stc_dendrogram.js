@@ -230,20 +230,18 @@ stoicReady(1, function() {
           d[parentField] = clean(newParent).id || null;
           d.depth = newParent.depth+1;
           if(!newParent.hasChildren) {
-            newParent.childrenShowed = false;
             newParent.hasChildren = true;
             newParent.children = [d];
             update(newParent);
-          } else if(!newParent.childrenShowed && !newParent._children) {
-            showSpinner();
+          } else if(!newParent.children && !newParent._children) {
             computeChildren(newParent, function() {
               onCircleClick(newParent);
             });
-          } else if(!newParent.childrenShowed && newParent._children) {
-              newParent._children.push(d);
-              onCircleClick(newParent);
-              canClick = true;
-          } else if(newParent.childrenShowed) {
+          } else if(!newParent.children && newParent._children) {
+            newParent._children.push(d);
+            onCircleClick(newParent);
+            canClick = true;
+          } else if(newParent.children) {
             newParent.children.push(d);
             update(newParent);
           }
@@ -299,8 +297,6 @@ stoicReady(1, function() {
             // Only compute children if it has not been before
             if(d.hasChildren && !d.children && !d._children) {
 
-              d.childrenShowed = false;
-
               var id = getId(d) || null;
 
               var nb = 0;
@@ -328,9 +324,6 @@ stoicReady(1, function() {
         var computeHasChildren = function(d, callback) {
           var hasChildren = _(demoData).filter(function(node) {return node[parentField] === d.id;}).value().length > 0;
           d.hasChildren = hasChildren;
-          if(hasChildren) {
-            d.childrenShowed = false;
-          }
           callback(hasChildren);
         };
 
@@ -342,12 +335,10 @@ stoicReady(1, function() {
         };
 
         var toggle = function(d) {
-          if (d.childrenShowed) {
-            d.childrenShowed = false;
+          if (d.children) {
             d._children = d.children;
             d.children = null;
           } else {
-            d.childrenShowed = true;
             d.children = d._children;
             d._children = null;
           }
@@ -448,11 +439,11 @@ stoicReady(1, function() {
                 }
               }
             });
-            if((getId(newNextUp) !== getId(nextUp) || getId(newNextDown) !== getId(nextDown)) && (newNextUp || nextDown)) {
+            if((getId(newNextUp) !== getId(nextUp) || getId(newNextDown) !== getId(nextDown)) && (newNextUp || newNextDown)) {
               // A new valid position !
               nextUp =  newNextUp;
               nextDown = newNextDown;
-              nextPlace = (nextUp)? nextUp : nextDown;
+              nextPlace = nextUp || nextDown;
               removeNode(blankNode);
               blankNode = {'isBlank':true, parent:nextPlace.parent, depth:nextPlace.depth, childrenShowed:false, id:'___blank', x:0, y:0, x0:0, y0:0};
               setPosition(blankNode, getMidPosition(nextUp, nextDown));
@@ -484,7 +475,7 @@ stoicReady(1, function() {
 
                     var id = getId(d);
                     if(d.hasChildren) {
-                      if(!d.childrenShowed) {
+                      if(!d.children) {
                         computeChildren(d, function() {
                           onCircleClick(d, onClickCallback);
                         });
@@ -536,7 +527,7 @@ stoicReady(1, function() {
             nodeEnter.append("svg:circle")
                 .attr("r", 1e-6)
                 .style("stroke", function(d) { getColor(d);})
-                .style("fill", function(d) { return d.childrenShowed === false ? getColor(d) : emptyColor; });
+                .style("fill", function(d) { return (!d.children && d.hasChildren) ? getColor(d) : emptyColor; });
 
             nodeEnter.append("svg:title")
                 .text(getName);
@@ -565,7 +556,7 @@ stoicReady(1, function() {
             nodeUpdate.select("circle")
                 .attr("r", 4.5)
                 .style("stroke", function(d) { return getColor(d); })
-                .style("fill", function(d) { return d.childrenShowed === false ? getColor(d) : emptyColor; });
+                .style("fill", function(d) { return (!d.children && d.hasChildren) ? getColor(d) : emptyColor; });
 
             nodeUpdate.select("text")
                 .text(function(d) { return compact(getName(d)); })
@@ -680,6 +671,7 @@ stoicReady(1, function() {
 
         var root = {id: rootId, name: rootName, children:[], childrenShowed:true, hasChildren:true, x0:_h/2, y0:0};
         computeRoot(root, function() {
+          console.log(root);
           $content.find('#nodeCentral').show();
           update(root, onRootsComputed);
         });
