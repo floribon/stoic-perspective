@@ -17,7 +17,6 @@ stoicReady(1, function() {
           delete node.y0;
           delete node.y;
           delete node.hasChildren;
-          delete node.childrenShowed;
           delete node.children;
           delete node._children;
           delete node.parent;
@@ -61,8 +60,6 @@ stoicReady(1, function() {
             nodeSelected
 
             ;
-
-        // var root = {'id':'', children:[], childrenShowed:true, hasChildren:true};
 
         var oldH = _h,
             newH;
@@ -342,6 +339,7 @@ stoicReady(1, function() {
             d.children = d._children;
             d._children = null;
           }
+          console.log(d);
         };
 
         var getIcon = function(d) {
@@ -387,6 +385,8 @@ stoicReady(1, function() {
             // Compute the new tree layout.
             nodes = tree.nodes(root);
 
+            console.log('New nodes:', nodes);
+
             root.x = _h/2;
 
             var nb = 0,
@@ -394,7 +394,6 @@ stoicReady(1, function() {
                 len = nodes.length;
 
             maxX = 0;
-            if(len === 1) { if(callback) {callback();} return; }
 
             for(var i=0; i<len; i++) {
               d = nodes[i];
@@ -445,7 +444,7 @@ stoicReady(1, function() {
               nextDown = newNextDown;
               nextPlace = nextUp || nextDown;
               removeNode(blankNode);
-              blankNode = {'isBlank':true, parent:nextPlace.parent, depth:nextPlace.depth, childrenShowed:false, id:'___blank', x:0, y:0, x0:0, y0:0};
+              blankNode = {'isBlank':true, parent:nextPlace.parent, depth:nextPlace.depth, id:'___blank', x:0, y:0, x0:0, y0:0};
               setPosition(blankNode, getMidPosition(nextUp, nextDown));
               addNode(blankNode, nextPlace.parent);
             }
@@ -626,7 +625,6 @@ stoicReady(1, function() {
 
         var onNodeCentralClicked = function() {
           canClick = true;
-
           if(!isNodeCentralClicked) {
             minX = 0;
             maxX = 0;
@@ -640,6 +638,23 @@ stoicReady(1, function() {
             .attr('id', 'nodeCentral')
             .attr("class", "node root")
             .attr("transform", function() { return "translate(" + 0 + "," + (_h/2) + ")"; })
+            .on("click", function(d) {
+              if(canClick) {
+                if(elementSelected) {elementSelected.classed("highlighted", false);}
+                elementSelected = d3.select(this);
+                elementSelected.classed("highlighted", true);
+                nodeSelected = null;
+
+                canClick = false;
+                circleCentral
+                  .transition()
+                  .duration(500)
+                  .style("fill", function(d) { return !isNodeCentralClicked ? fullColor : emptyColor; });
+
+                toggle(root);
+                update(root, function() { onNodeCentralClicked(); });
+              }
+            });
 
         $content.find('#nodeCentral').hide();
 
@@ -669,7 +684,7 @@ stoicReady(1, function() {
         var rootId   = _(demoData).find({parentId: null}).id;
         var rootName = _(demoData).find({parentId: null}).name;
 
-        var root = {id: rootId, name: rootName, children:[], childrenShowed:true, hasChildren:true, x0:_h/2, y0:0};
+        var root = {id: rootId, name: rootName, children:[], hasChildren:true, x0:_h/2, y0:0};
         computeRoot(root, function() {
           console.log(root);
           $content.find('#nodeCentral').show();
