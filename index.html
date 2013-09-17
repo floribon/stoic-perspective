@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-ng-controller="ctrls.siteCtrl">
+<html lang="en">
 
 <head>
   <meta charset="utf-8" />
@@ -8,12 +8,13 @@
   <!-- Stoic API CSS -->
   <link media="all" rel="stylesheet" type="text/css" href="http://localhost:3000/fonts/custom/fontcustom.css" />
   <link media="all" rel="stylesheet" type="text/css" href="http://localhost:3000/libraries/bootstrap/css/bootstrap.min.css" />
-  <link media="all" rel="stylesheet" type="text/css" href="http://localhost:3000/css/jquery.css" />
+  <link media="all" rel="stylesheet" type="text/css" href="http://localhost:3000/libraries/jquery/jquery.css" />
   <link media="all" rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Droid+Sans+Mono" />
   <link media="all" rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Roboto:400,300,700" />
   <link media="all" rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Roboto+Condensed:400,300,700" />
   <link media="all" rel="shortcut icon" href="http://localhost:3000/img/favicon.ico">
   <link media="all" rel="stylesheet" type="text/css" href="http://localhost:3000/css/main.css" />
+  <link media="all" rel="stylesheet" type="text/css" href="http://localhost:3000/css/perspectives.css" />
 
   <!-- Stoic API libs -->
   <script src="https://apis.google.com/js/client.js"></script>
@@ -21,8 +22,33 @@
   <!-- Stoic widgets script -->
   <script data-main="http://localhost:3000/public/stoic.api.build" src="http://localhost:3000/public/require.js"></script>
 
+  <!-- The perspective code goes here -->
+  <script src="stc_dendrogram.js"></script>
+
+  <script src="demoController.js"></script>
+  <script src="run.js"></script>
+
+  <style>
+    body {
+      background: #999;
+      margin: 2em;
+    }
+
+    .main {
+      margin: auto;
+      background: white;
+      width: 800px;
+      height: 500px;
+    }
+
+    #container {height: 100%;}
+  </style>
 </head>
+
 <body>
-  <h1>Here we go</h1>
+  <div class="main">
+    <div id="container" data-ng-controller="demoController"></div>
+  </div>
 </body>
+
 </html>
